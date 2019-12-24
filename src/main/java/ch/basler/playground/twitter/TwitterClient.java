@@ -16,8 +16,7 @@ import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 public class TwitterClient {
   private static final Logger LOG = LoggerFactory.getLogger(TwitterClient.class);
 
-  @Autowired
-  private TwitterConnection twitterConnection;
+  private final TwitterConnection twitterConnection;
 
   private Client hosebirdClient;
 
@@ -25,15 +24,18 @@ public class TwitterClient {
 
   private LinkedBlockingQueue<Event> eventQueue;
 
-  public TwitterClient() {
+  @Autowired
+  public TwitterClient(TwitterConnection twitterConnection) {
+    this.twitterConnection = twitterConnection;
+
     msgQueue = new LinkedBlockingQueue<String>(100000);
     eventQueue = new LinkedBlockingQueue<Event>(1000);
 
     ClientBuilder builder = new ClientBuilder()//
         .name("Hosebird-Client-01") // optional: mainly for the logs
-        .hosts(twitterConnection.getHosebirdHosts())//
-        .authentication(twitterConnection.getHosebirdAuth())//
-        .endpoint(twitterConnection.getHosebirdEndpoint())//
+        .hosts(this.twitterConnection.getHosebirdHosts())//
+        .authentication(this.twitterConnection.getHosebirdAuth())//
+        .endpoint(this.twitterConnection.getHosebirdEndpoint())//
         .processor(new StringDelimitedProcessor(msgQueue))//
         .eventMessageQueue(eventQueue); // optional: use this if you want to process client events
 
