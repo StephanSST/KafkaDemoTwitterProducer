@@ -12,11 +12,17 @@ import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.event.Event;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 
+import ch.basler.playground.kafka.KafkaProducer;
+
 @Service
 public class TwitterClient {
   private static final Logger LOG = LoggerFactory.getLogger(TwitterClient.class);
 
   private final TwitterConnection twitterConnection;
+  private final TwitterAuthentication twitterAuthentication;
+
+  @Autowired
+  private KafkaProducer kafkaProducer;
 
   private Client hosebirdClient;
 
@@ -25,16 +31,17 @@ public class TwitterClient {
   private LinkedBlockingQueue<Event> eventQueue;
 
   @Autowired
-  public TwitterClient(TwitterConnection twitterConnection) {
+  public TwitterClient(TwitterConnection twitterConnection, TwitterAuthentication twitterAuthentication) {
     this.twitterConnection = twitterConnection;
+    this.twitterAuthentication = twitterAuthentication;
 
     msgQueue = new LinkedBlockingQueue<String>(100000);
     eventQueue = new LinkedBlockingQueue<Event>(1000);
 
     ClientBuilder builder = new ClientBuilder()//
-        .name("Hosebird-Client-01") // optional: mainly for the logs
+        .name("KafkaDemoTwitterProducer-hbc-01") // optional: mainly for the logs
         .hosts(this.twitterConnection.getHosebirdHosts())//
-        .authentication(this.twitterConnection.getHosebirdAuth())//
+        .authentication(this.twitterAuthentication.getHosebirdAuth())//
         .endpoint(this.twitterConnection.getHosebirdEndpoint())//
         .processor(new StringDelimitedProcessor(msgQueue))//
         .eventMessageQueue(eventQueue); // optional: use this if you want to process client events
@@ -59,7 +66,7 @@ public class TwitterClient {
 
   }
 
-  private void processMessage(String msg) {
-    LOG.info("Tweet alert -> " + msg);
+  private void processMessage(String jsonTweet) {
+    kafkaProducer.sendMessage(jsonTweet);
   }
 }

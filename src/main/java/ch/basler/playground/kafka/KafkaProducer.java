@@ -20,10 +20,10 @@ public class KafkaProducer {
   @Autowired
   private KafkaTemplate<String, RssFeedEntry> kafkaTemplate;
 
-  public void sendMessage(RssFeedEntry rssFeedEntry) {
-    LOG.info(String.format("#### -> Producing message -> %s", rssFeedEntry));
+  public void sendMessage(String jsonTweet) {
+    LOG.info(String.format("#### -> Producing message -> %s", jsonTweet));
 
-    Message<RssFeedEntry> message = MessageBuilder.withPayload(rssFeedEntry)//
+    Message<String> message = MessageBuilder.withPayload(jsonTweet)//
         .setHeader(KafkaHeaders.TOPIC, TOPIC)//
         .build();
 

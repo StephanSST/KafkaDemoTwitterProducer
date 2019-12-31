@@ -19,7 +19,7 @@ public class KafkaController {
     return message;
   }
 
-  @RequestMapping(value = "/twitter")
+  @RequestMapping(value = "/startTwitter")
   public void readMessagesFromTwitter() {
     twitterClient.readMessages();
   }
