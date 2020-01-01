@@ -70,7 +70,7 @@ public class TwitterClient {
 
   private void processMessage(String jsonTweet) {
     try {
-      LOG.info(jsonTweet);
+//      LOG.info(jsonTweet);
 
       ObjectMapper objectMapper = new ObjectMapper();
       Tweet tweet = objectMapper.readValue(jsonTweet, Tweet.class);
