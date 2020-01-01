@@ -21,7 +21,7 @@ public class KafkaProducer {
   private KafkaTemplate<String, RssFeedEntry> kafkaTemplate;
 
   public void sendMessage(String jsonTweet) {
-    LOG.info(String.format("#### -> Producing message -> %s", jsonTweet));
+//    LOG.info(String.format("#### -> Producing message -> %s", jsonTweet));
 
     Message<String> message = MessageBuilder.withPayload(jsonTweet)//
         .setHeader(KafkaHeaders.TOPIC, TOPIC)//

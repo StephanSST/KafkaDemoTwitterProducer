@@ -7,12 +7,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Client;
 import com.twitter.hbc.core.event.Event;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 
 import ch.basler.playground.kafka.KafkaProducer;
+import ch.basler.playground.model.Tweet;
 
 @Service
 public class TwitterClient {
@@ -63,10 +66,24 @@ public class TwitterClient {
     } catch (InterruptedException ex) {
       LOG.error("Unerwarteter Fehler beim Empfang vom Tweet", ex);
     }
-
   }
 
   private void processMessage(String jsonTweet) {
-    kafkaProducer.sendMessage(jsonTweet);
+    try {
+      LOG.info(jsonTweet);
+
+      ObjectMapper objectMapper = new ObjectMapper();
+      Tweet tweet = objectMapper.readValue(jsonTweet, Tweet.class);
+
+      LOG.info("Tweet: " + tweet);
+
+      kafkaProducer.sendMessage(jsonTweet);
+
+    } catch (JsonProcessingException ex) {
+      String errorMessage = "Fehler beim Parsen vom Json-Tweet";
+      LOG.error(errorMessage, ex);
+      throw new IllegalStateException(errorMessage, ex);
+    }
+
   }
 }
